@@ -1,5 +1,9 @@
-name: "Terraform Apply"
+name: "Vincis Terraform Apply"
 description: "Terraform apply to support multiple cloud providers"
+
+branding:
+  icon: check
+  color: purple
 
 inputs:
   tfplan-name:
