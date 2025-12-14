@@ -12,7 +12,8 @@ inputs:
     default: "tfplan.tfplan"
   use-tfplan-artifact:
     required: false
-    description: "If the Terraform plan output fil artifact from the last successful plan should be used."
+    description: "If the Terraform plan output artifact from the last successful plan should be used."
+    default: "false"
   github-token:
     required: false
     description: "GitHub token if using tfplan artifact."
