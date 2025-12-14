@@ -13,6 +13,9 @@ inputs:
   use-tfplan-artifact:
     required: false
     description: "If the Terraform plan output fil artifact from the last successful plan should be used."
+  github-token:
+    required: false
+    description: "GitHub token if using tfplan artifact."
     default: "false"
 
 outputs:
@@ -32,6 +35,7 @@ runs:
       env:
         workflow: ${{ github.workflow_ref }}
       id: workflow-file-name
+      shell: bash
       run: | 
         echo workflowfile=$(echo "$workflow" | grep -oP '(?<=.github/workflows/).*?(?=@)') >> $GITHUB_OUTPUT
 
@@ -43,7 +47,7 @@ runs:
       with:
         route: GET /repos/${{ github.repository }}/actions/workflows/.github%2fworkflows%2f${{ steps.workflow-file-name.outputs.workflowfile }}/runs?head_sha=${{ github.event.pull_request.head.sha }}&status=success
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
 
     # Download the Terraform plan file artifact
     - name: Download Plan
@@ -51,9 +55,10 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.tfplan-name }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         run-id: ${{ fromJson(steps.get-latest-run.outputs.data).workflow_runs[0].id }}
 
     # Run Terraform Apply to ensure infrastructure aligns with code
     - name: Terraform Apply
+      shell: bash
       run: terraform apply -input=false -auto-approve "${{ inputs.tfplan-name }}"
